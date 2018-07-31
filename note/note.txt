@@ -1,2 +1,14 @@
-Solve the command too long build error in Windows: (short the repo location to short the command)
-mvn package -Plist -DskipTests -Dmaven.repo.local=C:\m2
+Tips for hadoop build in windows:
+1. The command too long build
+Short the repo location to short the command: mvn package -Pdist -DskipTests -Dmaven.repo.local=C:\m2
+
+2. Cannot run program "bash"
+You can install a git which has one bash command and set the git bin folder (such as C:\Program Files\Git\bin) into system/user's path environment
+
+3. 'protoc --version' did not return a version
+Install google protoc (protoc-2.5.0-win32 https://github.com/google/protobuf/releases/download/v2.5.0/protoc-2.5.0-win32.zip
+protobuf-2.5.0.zip https://github.com/google/protobuf/releases/download/v2.5.0/protobuf-2.5.0.zip)
+
+
+4. Cannot run program "msbuild"
+Set C:\Windows\Microsoft.NET\Framework64\v4.0.30319 to path
