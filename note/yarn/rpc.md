@@ -289,7 +289,7 @@ Server.Responder.run -> Server.Responder.doAsyncWrite -> SelectionKey.attachment
 ### Client RPC Call
 ```
 Send Call
-Proxy.method -> Invocation.call -> Client.call -> Client.getConnection -> [ -> Client.Connection.setupIOstreams if not connected] -> Client.Connection.sendRpcRequest
+Proxy.method -> Invoker.invoke -> Client.call -> Client.getConnection -> [ -> Client.Connection.setupIOstreams if not connected] -> Client.Connection.sendRpcRequest
 Receive Response
 Client.Connection.run -> Client.Connection.receiveRpcResponse
 ```
