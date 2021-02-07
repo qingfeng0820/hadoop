@@ -254,7 +254,7 @@ Client.Connection
 
 ### Serialize and Deserialize
 ```
-RPC Request = RpcRequestHeaderProto + rpcRequest (Writable) 
+RPC Request = "hrpc" + ConnectionHeader (version, service class and auth protocol) + IpcConnectionContextProto (protocolName ... ) + data length + RpcRequestHeaderProto + rpcRequest (Writable) 
               rpcRequest: Invocation or RpcProtobufRequest
               Invocation = method + arguments
               RpcProtobufRequest = RequestHeaderProto + payload (payload can be deserialized to be specific protobuf protocol parameter object)
@@ -282,7 +282,7 @@ Server.Listener.run -> Server.Listener.doAccept -> Server.Listener.getReader (ge
 Read Request
 Server.Reader.run -> channel.register OP_READ to Selector -> Server.Listener.doRead -> Server.Listener.Connection.readAndProcess -> Server.Listener.Connection.processOneRpc [ -> SALS Layer ... ] -> Server.Listener.Connection.processRpcRequest (Create RpcCall)  -> Server.queueCall  (queue RpcCall) -> CallQueueManager.put (put RpcCall)
 Handle Request
-Server.Handler.run -> CallQueueManager.task -> Server.Call.run -> RPC.Server.call -> RpcInvoker.call -> Server.Call.sendResponse -> Server.Listener.Connection.sendResponse -> Server.Responder.doResponse (synchronized) -> [ -> SALS Layer ... ] -> Server.Listener.Connection.responseQueue.addLast -> For the first Response in the Call: Server.Responder.processResponse (synchronized) and SocketChannel.register Call with OP_WRITE in processResponse
+Server.Handler.run -> CallQueueManager.take -> Server.RpcCall.run -> RPC.Server.call -> RpcInvoker.call -> Server.Call.sendResponse -> Server.RpcCall.doResponse -> Server.Listener.Connection.sendResponse -> Server.Responder.doResponse (synchronized) -> [ -> SALS Layer ... ] -> Server.Listener.Connection.responseQueue.addLast -> For the first Response in the Call: Server.Responder.processResponse (synchronized) and SocketChannel.register Call with OP_WRITE in processResponse
 Send Response
 Server.Responder.run -> Server.Responder.doAsyncWrite -> SelectionKey.attachment -> Server.Responder.processResponse (synchronized) -> Server.Listener.Connection.responseQueue.removeFirst -> Server.channelWrite
 ```
@@ -293,4 +293,3 @@ Proxy.method -> Invoker.invoke -> Client.call -> Client.getConnection -> [ -> Cl
 Receive Response
 Client.Connection.run -> Client.Connection.receiveRpcResponse
 ```
-
