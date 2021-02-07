@@ -278,11 +278,11 @@ Server
 ### Server process request
 ```
 Accept connection
-Server.Listener.run -> Server.Listener.doAccept -> Server.Listener.getReader -> Server.ConnectionManager.register -> Server.Listener.Reader.addConnection
+Server.Listener.run -> Server.Listener.doAccept -> Server.Listener.getReader (get Reader) -> Server.ConnectionManager.register (create Connection) -> Server.Listener.Reader.addConnection
 Read Request
-Server.Reader.run -> Server.Listener.doRead -> Server.Listener.Connection.readAndProcess -> Server.Listener.Connection.processOneRpc [ -> SALS Layer ... ] -> Server.Listener.Connection.processRpcRequest  -> Server.queueCall -> CallQueueManager.put
+Server.Reader.run -> channel.register OP_READ to Selector -> Server.Listener.doRead -> Server.Listener.Connection.readAndProcess -> Server.Listener.Connection.processOneRpc [ -> SALS Layer ... ] -> Server.Listener.Connection.processRpcRequest (Create RpcCall)  -> Server.queueCall  (queue RpcCall) -> CallQueueManager.put (put RpcCall)
 Handle Request
-Server.Handler.run -> CallQueueManager.task -> Server.Call.run -> RPC.Server.call -> RpcInvoker.call -> Server.Call.sendResponse -> Server.Listener.Connection.sendResponse -> Server.Responder.doResponse (synchronized) -> [ -> SALS Layer ... ] -> Server.Listener.Connection.responseQueue.addLast -> For the first Response in the Call then Server.Responder.processResponse (synchronized) and SocketChannel.register Call with OP_WRITE in processResponse
+Server.Handler.run -> CallQueueManager.task -> Server.Call.run -> RPC.Server.call -> RpcInvoker.call -> Server.Call.sendResponse -> Server.Listener.Connection.sendResponse -> Server.Responder.doResponse (synchronized) -> [ -> SALS Layer ... ] -> Server.Listener.Connection.responseQueue.addLast -> For the first Response in the Call: Server.Responder.processResponse (synchronized) and SocketChannel.register Call with OP_WRITE in processResponse
 Send Response
 Server.Responder.run -> Server.Responder.doAsyncWrite -> SelectionKey.attachment -> Server.Responder.processResponse (synchronized) -> Server.Listener.Connection.responseQueue.removeFirst -> Server.channelWrite
 ```
@@ -293,3 +293,4 @@ Proxy.method -> Invoker.invoke -> Client.call -> Client.getConnection -> [ -> Cl
 Receive Response
 Client.Connection.run -> Client.Connection.receiveRpcResponse
 ```
+
