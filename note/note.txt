@@ -12,3 +12,14 @@ protobuf-2.5.0.zip https://github.com/google/protobuf/releases/download/v2.5.0/p
 
 4. Cannot run program "msbuild"
 Set C:\Windows\Microsoft.NET\Framework64\v4.0.30319 to path
+
+
+
+
+https://visualstudio.microsoft.com/dc9442e9-99d4-469a-b68c-eccb48e2eabe
+
+https://download.microsoft.com/download/5/A/0/5A08CEF4-3EC9-494A-9578-AB687E716C12/windowssdk/winsdksetup.exe?ocid=wdgcx1803-download-installer
+
+
+install Windows SDK for Windows 7
+https://www.microsoft.com/en-us/download/confirmation.aspx?id=8279

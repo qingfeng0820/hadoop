@@ -254,20 +254,21 @@ Client.Connection
 
 ### Serialize and Deserialize
 ```
-RPC Request = "hrpc" + ConnectionHeader (version, service class and auth protocol) + IpcConnectionContextProto (protocolName ... ) + data length + RpcRequestHeaderProto + rpcRequest (Writable) 
+RPC Request = "hrpc" + ConnectionHeader (version, service class and auth protocol) + data length (4) + RpcRequestHeader length (4) + RpcRequestHeaderProto + IpcConnectionContext length (4) + IpcConnectionContextProto (protocolName ... )
+              + data length (4) + RpcRequestHeader length (4) + RpcRequestHeaderProto + rpcRequest length (4) + rpcRequest (Writable) 
               rpcRequest: Invocation or RpcProtobufRequest
               Invocation = method + arguments
               RpcProtobufRequest = RequestHeaderProto + payload (payload can be deserialized to be specific protobuf protocol parameter object)
               
-RPC Response = RpcResponseHeaderProto + rpcResponse (Writable)
+RPC Response = total data length (4) + RpcResponseHeaderProto length (4) + RpcResponseHeaderProto + rpcResponse length (4) + rpcResponse (Writable)
                
 Client 
    serializes RPC Request by RpcWritable.wrap(Class RpcProtobufRequest or Invocation).writeTo(buf) in Client.sendRpcRequest
        RpcProtobufRequest is for protobuf protocol 
-   deserializes RPC Response by RpcWritable.wrap(Class RpcWritable.Buffer or Writable).readFrom(bb) in Client.receiveRpcResponse
+   deserializes RPC Response by RpcWritable.wrap(instance of RpcWritable.Buffer or Writable).readFrom(bb) in Client.receiveRpcResponse
        RpcWritable.Buffer is for protobuf protocol
 Server 
-    deserializes RPC Request by RpcWritable.wrap(Class Message or Writable).readFrom(bb) in Server.Connection.processOneRpc
+    deserializes RPC Request by RpcWritable.wrap(instance of Message or Writable).readFrom(bb) in Server.Connection.processOneRpc
         Message is for protobuf protocol
     serializes RPC Response ( by RpcWritable.writeTo or protobuf's writeTo) in Server.setupResponse
         refer ipc.Server.setupResponseForProtobuf and ipc.Server.setupResponseForWritable
