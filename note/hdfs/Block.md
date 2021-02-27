@@ -1,19 +1,19 @@
 ## Block file
-Block file name: blk_<block_id>
-Checksum file name: blk_<block_id>_<GENERATION_STAMP>.meta
+* Block file name: blk_<block_id>
+* Checksum file name: blk_<block_id>_<GENERATION_STAMP>.meta
 
 
-##Checksum file content: 
-Version (short) + Checksum Type (byte) + bytesPerChecksum (int) + checksum + checksum ... + checksum
+## Checksum file content: 
+* Version (short) + Checksum Type (byte) + bytesPerChecksum (int) + checksum + checksum ... + checksum
 checksum: size is checksumSize bytes. A checksum is calculated for each chunk((bytesPerChecksum bytes).
 
-Checksum Type ---> DataChecksum
+* Checksum Type ---> DataChecksum
 
-##DataChecksum:
+## DataChecksum:
     Type: has id (Checksum Type) and size(checksumSize).
     bytesPerChecksum (int)
     Checksum instance
-###Checksum Types:
+### Checksum Types:
     CHECKSUM_NULL: Type -> 0, checksumSize -> 0
     CHECKSUM_CRC32: Type -> 1, checksumSize -> 4
     CHECKSUM_CRC32C: Type -> 2, checksumSize -> 4
@@ -45,7 +45,7 @@ Checksum Type ---> DataChecksum
 * PacketLen = total length of chunks + total length of checksum + 4 -> packetLen is int, which occupies 4 bytes.
 ### Send packet
 #### Normal transfer
-* check sum before send if verifyChecksum set to true
+* check sum before send if verifyChecksum set to true (if check sum not needed, use DataChecksum.Type.NULL)
 * send PacketHeader, checksums and chunks to client
 #### TransferTo
 * send PacketHeader and checksums to client
