@@ -38,7 +38,8 @@ checksum: size is checksumSize bytes. A checksum is calculated for each chunk((b
 
 ## BlockReader
 * work on client, to receive the data from BlockSender.
-* call DataXceiver.readBlock to connect the chosen datanode
+* Connect the chosen datanode
+* Call DataXceiver.readBlock to read data
 
 ## BlockSender
 * work on datanode, and sent block data to client
@@ -94,7 +95,8 @@ checksum: size is checksumSize bytes. A checksum is calculated for each chunk((b
 * It's a thread
 * Count the sequence number for DataPackets for each block
 * Before the first DataPacket, call namenode to add a block
-* Call DataXceiver.writeBlock to get connection with chosen downstream datanode and send the checksum of this block to it
+* Get connection with chosen downstream datanode 
+* Call DataXceiver.writeBlock to send the checksum of this block and pipeline datanodes to it
 * Send block packets to datanode one by one
 ### send packet
 * Send PacketHeader to downstream datanode of the pipeline 
