@@ -138,10 +138,10 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
      AnnotationConfigWebApplicationContext webMvcContext2 = new AnnotationConfigWebApplicationContext();
      // webMcvConfigClasses2 Class<?>[] which are tagged with annotation org.springframework.context.annotation.Configuration
      webMvcContext2.register(webMcvConfigClasses2);
-     ServletRegistration.Dynamic dispatcherServlet1 = servletContext.addServlet(servletName, new DispatcherServlet(webMvcContext1));
-     if (dispatcherServlet1 != null) {
-         dispatcherServlet1.setLoadOnStartup(1);
-         dispatcherServlet1.addMapping(mappings2);
+     ServletRegistration.Dynamic dispatcherServlet2 = servletContext.addServlet(servletName, new DispatcherServlet(webMvcContext1));
+     if (dispatcherServlet2 != null) {
+         dispatcherServlet2.setLoadOnStartup(2);
+         dispatcherServlet2.addMapping(mappings2);
      }
      ...
      ```

@@ -556,6 +556,10 @@ Servlet 映射器，它属于 Context 内部的路由映射器，只负责该 Co
   7. wrapper unload (servlet.destroy) if wrapper.getAvailable() == Long.MAX_VALUE
 
 
+## org.apache.catalina.valves.AccessLogValve
+* Config AccessLogValve for a Container (Engine, Host or Context), then the Container can get AccessLog for logging.
+
+
 ## org.apache.catalina.deploy.NamingResourcesImpl
 
 
@@ -581,7 +585,9 @@ Servlet 映射器，它属于 Context 内部的路由映射器，只负责该 Co
   3. create Poller: Poll (If not read all contents, it will use Poll to wait for next READ event)
   4. create Acceptor: Accept connection from ServerSocket
   5. Acceptor -> get Executor to run (SocketProcessor.run -> ConnectionHandler.process -> createProcessor 
-     -> Processor.process -> Processor.service -> Processor.prepareRequest -> getAdapter().service -> Processor.endRequest)
+     -> Processor.process -> Processor.service -> Processor.prepareRequest -> getAdapter().service -> Processor.endRequest
+     -> AbstractProcessor.action ActionCode.COMMIT -> Processor.prepareResponse -> Processor.outputBuffer.commit() 
+     -> socketWrapper.write -> Processor.outputBuffer.end())
 
 
 ## org.apache.catalina.connector.CoyoteAdapter
@@ -590,6 +596,12 @@ Servlet 映射器，它属于 Context 内部的路由映射器，只负责该 Co
   1. connector.createRequest(), connector.createResponse()
   2. postParseRequest: connector.getService().getMapper().map
   3. connector.getService().getContainer().getPipeline().getFirst().invoke   (Container is Engine)
+  4. response.finishResponse()
+  5. response.OutputBuffer.close() -> response.OutputBuffer.doFlush
+  6. response.action ActionCode.CLIENT_FLUSH
+  7. AbstractProcessor.action ActionCode.CLIENT_FLUSH
+  8. AbstractProcessor.flush
+  9. Processor.outputBuffer.commit()
 
 
 ## org.apache.catalina.mapper.Mapper
