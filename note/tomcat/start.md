@@ -54,3 +54,51 @@ bin - Startup and shutdown scripts
 lib - Libraries and classes, as explained below
 endorsed - Libraries that override standard "Endorsed Standards". By default it's absent.
 ```
+# Tomcat SSL
+* org.apache.catalina.connector.Connector.setProperty set the prop to ProtocolHandler
+* Configuration for SSL (defaultSSLHostConfig)
+  ```
+  <Connector port="443"
+    protocol="org.apache.coyote.http11.Http11Protocol"
+    SSLEnabled="true"
+    scheme="https"
+    secure="true"
+    keystoreFile="/xxx/tomcat/cert/restlessman.cn.pfx"
+    keystoreType="PKCS12"
+    keystorePass="xxxxx"
+    clientAuth="false"
+    SSLProtocol="TLSv1+TLSv1.1+TLSv1.2"
+    ciphers="TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA256"/>
+  ```
+  * Configuration for other SSL HostConfig
+    ```
+    <Connector port="443"
+      protocol="org.apache.coyote.http11.Http11Protocol"
+      SSLEnabled="true"
+      scheme="https"
+      secure="true">
+      <SSLHostConfig 
+        SSLProtocol="TLSv1+TLSv1.1+TLSv1.2" 
+        ciphers="TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA256">
+           <Certificate certificateKeystoreFile="/xxx/tomcat/cert/restlessman.cn.pfx" keystoreType="PKCS12" keystorePass="xxxxx" ... />
+      </SSLHostConfig>
+    </Connector>
+    ```
+* modify conf/web.xml for redirecting http to https
+  ``` 
+   <login-config>
+       <!-- Authorization setting for SSL -->
+       <auth-method>CLIENT-CERT</auth-method>
+       <realm-name>Client Cert Users-only Area</realm-name>
+   </login-config>
+   <security-constraint>
+       <!-- Authorization setting for SSL -->
+       <web-resource-collection >
+           <web-resource-name >SSL</web-resource-name>
+           <url-pattern>/*</url-pattern>
+       </web-resource-collection>
+       <user-data-constraint>
+           <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+       </user-data-constraint>
+   </security-constraint>
+  ```

@@ -351,7 +351,7 @@ Servlet 映射器，它属于 Context 内部的路由映射器，只负责该 Co
   23. Create DefaultInstanceManager as instanceManager and set it to ApplicationContext attribute
   24. bind WebappClassLoaderBase to instanceManager
   25. create StandardJarScanner as jarScanner and set it to ApplicationContext attribute
-  26. Set up the context init params for ApplicationContext
+  26. mergeParameters: Set up the init params for ApplicationContext from context parameters and application level parameters
       ```
       params in web.xml
       <context-param>
@@ -589,6 +589,21 @@ Servlet 映射器，它属于 Context 内部的路由映射器，只负责该 Co
      -> AbstractProcessor.action ActionCode.COMMIT -> Processor.prepareResponse -> Processor.outputBuffer.commit() 
      -> socketWrapper.write -> Processor.outputBuffer.end())
 
+## org.apache.tomcat.util.net.AbstractJsseEndpoint
+* initialiseSsl
+  1. if isSSLEnabled, get sslImplementation to create SSLImplementation instance 
+  2. createSSLContext with SSLHostConfigCertificate and negotiableProtocols, then slContext.init with keymanagers and trustmanagers
+     * sslContext.init calls native method to set up ssl context
+  3. set created sslContext to SSLHostConfigCertificate
+
+## org.apache.tomcat.util.net.SecureNioChannel
+* handshake -> processSNI ->  endpoint.createSSLEngine (get sslEngine)
+* endpoint.createSSLEngine
+  1. Get SSLHostConfig based on host name (not found, use default SSLHostConfig)
+  2. selectCertificate
+  3. certificate.getSslContext()
+  4. sslContext.createSSLEngine()
+  5. configure ssl engine
 
 ## org.apache.catalina.connector.CoyoteAdapter
 * connector (Connector)
@@ -619,3 +634,32 @@ Servlet 映射器，它属于 Context 内部的路由映射器，只负责该 Co
   2. requestPath = MappedWrapper.name, wrapper = MappedWrapper.object
   3. if uri == "/": pathInfo = "/", wrapperPath = "", contextPath = "", matchType = MappingMatch.CONTEXT_ROOT
   4. else: wrapperPath = MappedWrapper.name, matchType = MappingMatch.EXACT
+
+
+## Scope
+* ApplicationContext (ServletContext) visible for whole application (all servlets, filters, listeners)
+* StandardWrapper (ServletConfig) visible for a servlet. ServletConfig.getInitParameter:
+  ```
+   <servlet>
+    <servlet-name>cas</servlet-name>
+    <servlet-class>
+      org.jasig.cas.web.init.SafeDispatcherServlet
+    </servlet-class>
+    <init-param>
+      <param-name>publishContext</param-name>
+      <param-value>false</param-value>
+    </init-param>
+  </servlet>
+  ```
+* ApplicationFilterConfig visible for a filter. ApplicationFilterConfig.getInitParameter
+  ```
+  <filter>
+    <filter-name>springSecurityFilterChain</filter-name>
+    <filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+    <init-param>
+      <param-name>xxx</param-name>
+      <param-value>xxxxx</param-value>
+    </init-param>
+  </filter>
+  ```
+  

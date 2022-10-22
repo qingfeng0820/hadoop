@@ -1,4 +1,6 @@
 #  org.springframework.web.SpringServletContainerInitializer
+* Configuration: META-INF/services/javax.servlet.ServletContainerInitializer
+  ```org.springframework.web.SpringServletContainerInitializer```
 * It's a ServletContainerInitializer for no servlet configuration in web.xml
 ```
 @HandlesTypes(WebApplicationInitializer.class)
@@ -15,7 +17,8 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
 
 
 # Enable Spring 
-* Use Servlet with load-on-startup (Spring started by DispatcherServlet.init)
+* Use DispatcherServlet only if there is only one servlet
+  * Only one Spring conext (including core context and MVC context), which is loaded by DispatcherServlet.init.
   1. xml
      ```
      <servlet>
@@ -57,20 +60,20 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
      // configClasses Class<?>[] which are tagged with annotation org.springframework.context.annotation.Configuration
      AnnotationConfigWebApplicationContext beanContext = new AnnotationConfigWebApplicationContext();
      beanContext.register(configClasses);
-  
-     // ContextLoader.CONTEXT_INITIALIZER_CLASSES_PARAM = "contextInitializerClasses"
-     // APPLICATION_CONTEXT_INITIALIZER_CLASS implements org.springframework.context.ApplicationContextInitializer
-     servletContext.setInitParameter(ContextLoader.CONTEXT_INITIALIZER_CLASSES_PARAM, "<APPLICATION_CONTEXT_INITIALIZER_CLASS>");   
+
      // mappings (String[]): ["/api/*"]...
      ServletRegistration.Dynamic dispatcherServlet = servletContext.addServlet(servletName, new DispatcherServlet(beanContext));
      if (dispatcherServlet != null) {
          dispatcherServlet.setLoadOnStartup(1);
          dispatcherServlet.addMapping(mappings);
      }
+     // beanContext's parent is null, because no ContextLoaderListener
      ```
-* Use ServletContextListener (Spring started by ContextLoaderListener.contextInitialized)
+* Use ServletContextListener and DispatcherServlet for multiple servlet
   * If there are multiple servlets need to share backend business spring context, can introduce ContextLoaderListener to load backend spring beans.
-  * each DispatcherServlet just loads spring MVC related beans separately.
+  * Spring core context (context init-params: contextConfigLocation) loaded by ContextLoaderListener.contextInitialized.
+  * Each DispatcherServlet just loads spring MVC related beans (servlet init-params: contextConfigLocation) separately by DispatcherServlet.init.
+    * HttpServletBean.int -> BeanWrapper.setPropertyValues(PropertyValues, true) -> set contextConfigLocation to the instance of DispatcherServlet 
   1. xml
      ```
      <context-param>
@@ -123,6 +126,11 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
      // ContextLoader.CONTEXT_INITIALIZER_CLASSES_PARAM = "contextInitializerClasses"
      // APPLICATION_CONTEXT_INITIALIZER_CLASS implements org.springframework.context.ApplicationContextInitializer
      servletContext.setInitParameter(ContextLoader.CONTEXT_INITIALIZER_CLASSES_PARAM, "<APPLICATION_CONTEXT_INITIALIZER_CLASS>");
+     // ContextLoaderListener.contextInitialized -> ContextLoader.customizeContext 
+     // -> ContextLoader.determineContextInitializerClasses will collect configired ApplicationContextInitializer classes for customizing ApplicationContext
+     // -> create installs for these ApplicationContextInitializer classes and sort them
+     // -> call method initialize of each ApplicationContextInitializer instance 
+     
      
      // first DispatcherServlet
      AnnotationConfigWebApplicationContext webMvcContext1 = new AnnotationConfigWebApplicationContext();
@@ -138,10 +146,33 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
      AnnotationConfigWebApplicationContext webMvcContext2 = new AnnotationConfigWebApplicationContext();
      // webMcvConfigClasses2 Class<?>[] which are tagged with annotation org.springframework.context.annotation.Configuration
      webMvcContext2.register(webMcvConfigClasses2);
-     ServletRegistration.Dynamic dispatcherServlet2 = servletContext.addServlet(servletName, new DispatcherServlet(webMvcContext1));
+     ServletRegistration.Dynamic dispatcherServlet2 = servletContext.addServlet(servletName, new DispatcherServlet(webMvcContext2));
      if (dispatcherServlet2 != null) {
          dispatcherServlet2.setLoadOnStartup(2);
          dispatcherServlet2.addMapping(mappings2);
      }
+     // when creating DispatcherServlets with webMvcContext1 and webMvcContext2, the rootContext will be set as parent context for webMvcContext1 and webMvcContext2.
      ...
      ```
+     
+## org.springframework.web.servlet.DispatcherServlet (load context servlet level webApplicationContext)
+* initWebApplicationContext
+  1. find root webApplicationContext
+  2. if DispatcherServlet's webApplicationContext is not null, set root webApplicationContext as parent of DispatcherServlet's webApplicationContext and configureAndRefreshWebApplicationContext
+  3. if DispatcherServlet's webApplicationContext is null, find webApplicationContext from the attribute of servlet context with specified name by contextAttribute
+  4. if DispatcherServlet's webApplicationContext is still null, create webApplicationContext with root webApplicationContext as parent and configureAndRefreshWebApplicationContext.
+  * configureAndRefreshWebApplicationContext:
+    1. servlet context, servlet config
+    2. namespace: default name of namespace -> <servlet-name>-servlet
+    3. add application listener
+    4. wac.getEnvironment and env.initPropertySources
+    5. postProcessWebApplicationContext
+    6. applyInitializers
+    7. wac.refresh: if no configLocations, use default configLocations: getDefaultConfigLocations -> "/WEB-INF/<namespace>.xmlddd"
+
+## org.springframework.web.context.ContextLoaderListener (load context root webApplicationContext)
+* contextInitialized -> initWebApplicationContext
+  1. if already have root webApplicationContext throw exception
+  2. if ContextLoaderListener's webApplicationContext is null, then createWebApplicationContext
+  3. configureAndRefreshWebApplicationContext
+  4. wac.refresh: if no configLocations, use default configLocations: getDefaultConfigLocations -> "/WEB-INF/<namespace>.xml"
