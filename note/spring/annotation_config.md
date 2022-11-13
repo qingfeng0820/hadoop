@@ -155,7 +155,7 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
      ...
      ```
      
-## org.springframework.web.servlet.DispatcherServlet (load context servlet level webApplicationContext)
+## org.springframework.web.servlet.DispatcherServlet (load context servlet level webApplicationContext -> request attribute: DispatcherServlet.WEB_APPLICATION_CONTEXT_ATTRIBUTE)
 * initWebApplicationContext
   1. find root webApplicationContext
   2. if DispatcherServlet's webApplicationContext is not null, set root webApplicationContext as parent of DispatcherServlet's webApplicationContext and configureAndRefreshWebApplicationContext

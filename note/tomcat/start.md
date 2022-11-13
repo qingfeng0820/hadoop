@@ -102,3 +102,43 @@ endorsed - Libraries that override standard "Endorsed Standards". By default it'
        </user-data-constraint>
    </security-constraint>
   ```
+  
+* getContextPath, getServletPath, getPathInfo, getRequestURI
+  * 你的web application 名称为news,你在浏览器中输入请求路径：http://localhost:8080/news/main/list.jsp
+    ```
+     servlet mapping:
+     <servlet-mapping>
+        <servlet-name>xxx</servlet-name>
+        <url-pattern>/main/list.jsp</url-pattern>
+     </servlet-mapping>
+    ```
+    1. System.out.println(request.getContextPath()); //可返回站点的根路径。也就是项目的名字。 打印结果：/news
+    2. System.out.println(request.getServletPath()); 打印结果：/main/list.jsp
+    3. request.getPathInfo(); 为null
+    4. System.out.println(request.getRequestURI()); 打印结果：/news/main/list.jsp
+    5. System.out.println(request.getRealPath("/")); 打印结果：F:\Tomcat 6.0\webapps\news\test
+  * getServletPath and getPathInfo
+    1. "" and "/main/list.jsp"
+       ```
+       servlet mapping:
+       <servlet-mapping>
+       <servlet-name>xxx</servlet-name>
+       <url-pattern>/*</url-pattern>
+       </servlet-mapping>
+       ```
+    2. "/main" and "/list.jsp"
+       ```
+       servlet mapping:
+       <servlet-mapping>
+       <servlet-name>xxx</servlet-name>
+       <url-pattern>/main*</url-pattern>
+       </servlet-mapping>
+       ```
+    3. "/main/list.jsp" and null
+       ```
+       servlet mapping:
+       <servlet-mapping>
+       <servlet-name>xxx</servlet-name>
+       <url-pattern>*.jsp</url-pattern>
+       </servlet-mapping>
+       ```

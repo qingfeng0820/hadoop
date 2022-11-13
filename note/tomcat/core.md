@@ -454,8 +454,34 @@ Servlet 映射器，它属于 Context 内部的路由映射器，只负责该 Co
 
 
 ## org.apache.catalina.session.StandardManager
+* properties
+  * sessions ```Map<String, Session>```: keep sessions with clients
+  * processExpiresFrequency: Frequency of the session expiration processing
+* doLoad: load session stored in SESSIONS.ser and active sessions (to notify SessionListener and HttpSessionEvent)
+* doUnload: passivate sessions (to notify SessionListener and HttpSessionEvent) and store the sessions to SESSIONS.ser, then expire and recycle these sessions
+* processExpires: Invalidate all sessions that have expired by calling session.isValid
+* findSession: 
 
+## org.apache.catalina.session.StandardSession
+* properties
+  * maxInactiveInterval: expire the session if exceeding it.
+  * accessCount: The access count for this session.
+  * thisAccessedTime: The current accessed time for this session.
+* expire: invalidate this session 
+* recycle: clear the contents of the session to avoid memory leak
+* access: Update the accessed time information for this session (thisAccessedTime) and increase accessCount
+* endAccess: end the access -> update thisAccessedTime and lastAccessedTime, then decrease accessCount
+  * if LAST_ACCESS_AT_START, lastAccessedTime = thisAccessedTime and then thisAccessedTime = current time
+  * otherwise, thisAccessedTime = current time and lastAccessedTime = thisAccessedTime
+* isValid: check getIdleTimeInternal < maxInactiveInterval (accessCount > 0 if ACTIVITY_CHECK isValid is true, even getIdleTimeInternal >= maxInactiveInterval)
+* getIdleTimeInternal: the idle time from last client access time without invalidation check
+* request.getSession -> request.doGetSession -> manager.findSession -> session.access
+* request.recycle() -> request.recycleSessionInfo -> session.endAccess
+* JSESSIONID vs jsessionid: request.requestedSessionId, request.requestedSessionCookie, request.requestedSessionURL
+  * jsessionid: in URL (like <url>;jessionid=xxxx?xxxxx), CoyoteAdapter.prepare -> CoyoteAdapter.postParseRequest -> request.getPathParameter
+  * JSESSIONID: in cookie, CoyoteAdapter.prepare -> CoyoteAdapter.postParseRequest -> CoyoteAdapter.parseSessionCookiesId
 
+## org.apache.catalina.ha.ClusterManager
 
 ## org.apache.catalina.core.StandardContextValve
 * invoke
