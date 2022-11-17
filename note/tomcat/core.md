@@ -650,18 +650,42 @@ Servlet 映射器，它属于 Context 内部的路由映射器，只负责该 Co
 * internalMap
   1. Iterate hosts and find the mappedHost based on input host name
   2. if MappedHost is null, return the defaultHost (mapped by defaultHostName)
-  3. Find MappedContext based on input uri
+  3. Find MappedContext based on input uri from MappedHost.contextList.contexts
   4. contexts = [MappedContext.versions[i].object]
-  5. find the context based on input version: context = MappedContext.versions[input version].object
-  6. contextSlashCount = MappedContext.versions[input version].slashCount
-  7. internalMapWrapper
+  5. find the ContextVersion based on input version: contextVersion = MappedContext.versions[input version]
+  6. context = contextVersion.object
+  7. contextSlashCount = ContextVersion.slashCount: the amount of "/" in context.getPath
+  8. internalMapWrapper
 * internalMapWrapper
-  1. Find MappedWrapper from MappedContext.versions[input version].exactWrappers based on input uri
+  1. Find MappedWrapper from contextVersion.exactWrappers/contextVersion.wildcardWrappers/contextVersion.extensionWrappers based on input uri
   2. requestPath = MappedWrapper.name, wrapper = MappedWrapper.object
   3. if uri == "/": pathInfo = "/", wrapperPath = "", contextPath = "", matchType = MappingMatch.CONTEXT_ROOT
   4. else: wrapperPath = MappedWrapper.name, matchType = MappingMatch.EXACT
 
 
+## Realm
+* Basic authentication flow
+  ```
+  Basic Access Authentication scheme是在HTTP1.0提出的认证方法，它是一种基于challenge/response的认证模式，针对特定的realm需要提供用户名和密码认证后才可访问，其中密码使用明文传输。Basic模式认证过程如下：
+  ①浏览器发送http报文请求一个受保护的资源。
+  ②服务端的web容器将http响应报文的响应码设为401，响应头部加入WWW-Authenticate: Basic realm=”myTomcat”。
+  ③浏览器弹出对话框让用户输入用户名和密码，并用Base64进行编码，实际是用户名+冒号+密码进行Base64编码，即Base64(username:password)，这次浏览器就会在HTTP报文头部加入Authorization: Basic bXl0b21jYXQ=。
+  ④服务端web容器获取HTTP报文头部相关认证信息，匹配此用户名与密码是否正确，是否有相应资源的权限，如果认证成功则返回相关资源，否则再执行②，重新进行认证。
+  ⑤以后每次访问都要带上认证头部。
+  服务端返回的认证报文中包含了realm=”myTomcat”，realm的值用于定义保护的区域，在服务端可以通过realm将不同的资源分成不同的域，域的名称即为realm的值，每个域可能会有自己的权限鉴别方案。
+  ```
+* Realm
+  * 用户、密码和角色的集合
+  * Tomcat包含以下几个常见的领域实现：UserDatabaseRealm、JDBCRealm、JNDIRealm与JAASRealm。
+  * 另外，开发者可以创建额外的领域实现，以便作为其用户和密码的接口。领域在server.xml文件中以<Realm>元素指定：
+  * <Realm> 可以嵌入以下任何一种 Container 元素中。Realm 元素的位置至关重要，它会对 Realm 的“范围”（比如说哪个 Web 应用能够共享同一验证信息）有直接的影响。
+    
+    ```
+    <Engine> 元素 内嵌入该元素中的这种 Realm 元素可以被所有虚拟主机上的所有 Web 应用所共享，除非该 Realm 元素被内嵌入下属 <Host> 或 <Context> 元素的 Realm 元素所覆盖。
+    <Host> 元素 内嵌入该元素中的这种 Realm 元素可以被这一虚拟主机上的所有 Web 应用所共享。除非该 Realm 元素被内嵌入下属 <Context> 元素的 Realm 元素所覆盖。
+    <Context> 元素 内嵌入该元素中的这种 Realm 元素只能被这一 Web 应用所使用。
+    ```
+    
 ## Scope
 * ApplicationContext (ServletContext) visible for whole application (all servlets, filters, listeners)
 * StandardWrapper (ServletConfig) visible for a servlet. ServletConfig.getInitParameter:
