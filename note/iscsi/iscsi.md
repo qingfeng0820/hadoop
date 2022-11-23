@@ -205,7 +205,7 @@
          Last 10 configs saved in /etc/target/backup.
          Configuration saved to /etc/target/saveconfig.json
          ```
-* Configure whitelist for the iSCSI pory in firewalld
+* Configure whitelist for the iSCSI port in firewalld
   ```
   [root@iscsi-target ~]# firewall-cmd --permanent --add-service=iscsi-target
   success
@@ -226,7 +226,7 @@
   ```
   [root@iscsi-initiator ~]# yum isntall -y iscsi-initiator-utils
   ```
-  * open-iscsi installation:  zypper -n install open-iscsi
+  * or using open iscsi? : open-iscsi installation:  zypper -n install open-iscsi
 * Configuration
   ```
   [root@iscsi-initiator ~]# cd /etc/iscsi/
@@ -267,7 +267,7 @@
   [root@iscsi-initiator iscsi]# systemctl start iscsi
   ```
   
-  * or /etc/init.d/iscsid start
+  * or: /etc/init.d/iscsid start
 * Scan our target server for any available iSCSI storage, we do this by using the discovery mode
   ```
   [root@iscsi-initiator iscsi]# iscsiadm --mode discovery --type sendtargets --portal 192.168.14.100
@@ -287,20 +287,22 @@
       * only sda is listed here.
  
   * Login
-  ```
-  iscsiadm --mode node --targetname iqn.2018-02.net.cb.target:fqdn --portal 192.168.14.100 --login
-  
-  Logging in to [iface: default, target: iqn.2018-02.net.cb.target:fqdn, portal: 192.168.14.100,3260] (multiple)
-  Login to [iface: default, target: iqn.2018-02.net.cb.target:fqdn, portal: 192.168.14.100,3260] successful.
-  ```
+
+    ```
+    iscsiadm --mode node --targetname iqn.2018-02.net.cb.target:fqdn --portal 192.168.14.100 --login
+    
+    Logging in to [iface: default, target: iqn.2018-02.net.cb.target:fqdn, portal: 192.168.14.100,3260] (multiple)
+    Login to [iface: default, target: iqn.2018-02.net.cb.target:fqdn, portal: 192.168.14.100,3260] successful.
+    ```
 
   * Confirmation check
-  ```
-  [root@initiator iscsi]# lsblk --scsi
-  NAME HCTL       TYPE VENDOR   MODEL             REV TRAN
-  sda  2:0:0:0    disk ATA      VBOX HARDDISK    1.0  sata
-  sdb  3:0:0:0    disk LIO-ORG  BD1              4.0  iscsi
-  ```
+
+    ```
+    [root@initiator iscsi]# lsblk --scsi
+    NAME HCTL       TYPE VENDOR   MODEL             REV TRAN
+    sda  2:0:0:0    disk ATA      VBOX HARDDISK    1.0  sata
+    sdb  3:0:0:0    disk LIO-ORG  BD1              4.0  iscsi
+    ```
 
 * Install a filesystem
   ```
@@ -335,7 +337,7 @@
     sdb               8:16   0   2G  0 disk /mnt/remotedisk
   ```
 
-* mount persistantly using the /etc/fstab appraoch by UUID
+* mount persistently using the /etc/fstab appraoch by UUID
   ```
     [root@initiator ~]# umount /dev/sdb  
   
@@ -435,7 +437,7 @@
     scsi3 Channel 00 Id 0 Lun: 0
     Attached scsi disk sdb		State: running
   ```
-  * Simply information for iscsi sesson: iscsiadm -m session --show
+  * Simply information for iscsi session: iscsiadm -m session --show
 * Stop
   ```
   [root@initiator ~]# umount /dev/sdb
