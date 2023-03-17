@@ -13,7 +13,6 @@
   服务是 Server 内部的组件，一个Server包括多个Service。它将若干个 Connector 组件绑定到一个 Container
 * Container
   容器，负责处理用户的 servlet 请求，并返回对象给 web 用户的模块
-![](./img/structure2.png)
   * Container handle flow: container.pipeline -> valve chain in container.pipeline -> basic valve in container.pipeline
 
 
@@ -21,25 +20,30 @@
 * functions
   1. socket 通信，也就是网络编程, 负责对接 I/O 模型 (EndPoint)
   2. 解析处理应用层协议，封装成一个 Request 对象 (Processor)
-  3. 将 Request 转换为 ServletRequest，将 Response 转换为 ServletResponse (Adapter)
-  4. Adapter 负责提供标准的 ServletRequest 对象给 Servlet 容器 (CoyoteAdapter.service)
+  3. Adapter 将 Request 转换为 标准的ServletRequest，并将 ServletRequest 对象传给 Servlet 容器(CoyoteAdapter.service)
+  4. Adapter 将 从Servlet容器获取到的ServletResponse Response 转换为
+
      ![](./img/endpoint_and_processor.png)   
 * ProtocolHandler
   1. 封装EndPoint和Processor
+
   ![](./img/protocol_handler.png)
+
   2. 相对稳定的部分或者是一些通用的处理逻辑使用抽象类AbstractProtocol来封装
+  
   ![](./img/protocol_handler_hierarchy.png)
 
 
 ### Servlet container
 * Engine
-表示整个 Catalina 的 Servlet 引擎，用来管理多个虚拟站点，一个 Service 最多只能有一个 Engine，但是一个引擎可包含多个 Host
+表示整个 Catalina 的 Servlet 引擎，用来管理多个虚拟站点，一个 Service 最多只能有一个 Engine，但是一个Engine可包含多个 Host
 * Host
 代表一个虚拟主机，或者说一个站点，可以给 Tomcat 配置多个虚拟主机地址，而一个虚拟主机下可包含多个 Context
 * Context
 表示一个 Web 应用程序，一个Web应用可包含多个 Wrapper
 * Wrapper
 表示一个Servlet，负责管理整个 Servlet 的生命周期，包括装载、初始化、资源回收等
+
 ![](./img/container.png)
 
 
@@ -58,6 +62,7 @@ JNDI是 Java 命名与目录接口，是属于 J2EE 规范的，Tomcat 对其进
 Web 应用加载器，用于加载 Web 应用的资源，它要保证不同 Web 应用之间的资源隔离
 * Manager 组件
 Servlet 映射器，它属于 Context 内部的路由映射器，只负责该 Context 容器的路由导航
+
   ![](./img/modules3.png)
 
 
@@ -148,8 +153,8 @@ Servlet 映射器，它属于 Context 内部的路由映射器，只负责该 Co
   4. pipeline.start
   5. create thread, if backgroundProcessorDelay > 0 then using the thread to start ContainerBackgroundProcessor.
   6. ContainerBackgroundProcessor: bnd current container's loader if current container is context
-  7. ContainerBackgroundProcessor: run all children's backgroundProcess
-  8. ContainerBackgroundProcessor: run backgroundProcess for all children of its children, if the child's backgroundProcessorDelay <= 0
+  7. ContainerBackgroundProcessor: run all children's backgroundProcess, if its backgroundProcessorDelay > 0
+
 
 
 ## org.apache.catalina.valves.ValveBase
@@ -494,6 +499,9 @@ Servlet 映射器，它属于 Context 内部的路由映射器，只负责该 Co
 
 ## org.apache.catalina.startup.ContextConfig
 * load authenticators configuration from org/apache/catalina/startup/Authenticators.properties
+* get login config -> auth method 
+* Create authenticator based on auth method in login config (web.xml)
+* add authenticator to pipeline of StandardContext if login config existed
 * lifecycleEvent
   1. CONFIGURE_START_EVENT: configureStart
      * webConfig

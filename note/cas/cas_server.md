@@ -126,8 +126,7 @@
   2. CAS Proxy的目的是，当浏览器用户Peter访问应用A，应用A引用了应用B1, B2的授权性资源(Authorized Resource)，应用A想代表Peter去访问应用B1, B2，因此应用A需要告诉应用B1, B2当前用户是谁，以便B1,B2对Peter的Request进行授权。这就是CAS代理(Proxy)。
 * application server: /proxyValidate?service=app.example.com&pgtUrl=proxyCallBackURLOnService&ticket=xxx
   * ServiceValidateController -> CentralAuthenticationService.delegateTicketGrantingTicket -> serviceTicket.grantTicketGrantingTicket -> ProxyGrantingTicket (PGT)
-  * generate proxy TGT (ProxyGrantingTicket) and proxyIou ticket
-  * Cas20ProxyHandler.handle: hit proxyCallBackURLOnService?pgtIou=PGTIOU-xxx&pgt=TGT-xxx to application service to store pgtIou and pgt.
+  * Cas20ProxyHandler.handle: generate proxyIou ticket and hit proxyCallBackURLOnService?pgtIou=PGTIOU-xxx&pgt=TGT-xxx to application service to store pgtIou and pgt.
   * respond assertion with pgtIou
   * then application service can use pgtIou to query pgt.
 * application service: /proxy?targetService=https://app2.example.com&pgt=xxx -> org.jasig.cas.web.ProxyController -> grant service ticket for pgt

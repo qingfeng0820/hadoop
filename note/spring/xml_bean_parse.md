@@ -8,7 +8,7 @@
   3. prepareBeanFactory
      * set classloader
      * add default BeanPostProcessor(s)
-     * registerResolvableDependency
+     * registerResolvableDependency (for autowired)
      * registerSingleton
   4. postProcessBeanFactory: Allows post-processing of the bean factory in context subclasses.
   5. invokeBeanFactoryPostProcessors: Invoke factory processors registered as beans in the context.
@@ -37,6 +37,7 @@
 * containedBeanMap ```new ConcurrentHashMap<String, Set<String>>```: Map between containing bean names: bean name --> Set of bean names that the bean contains
 * dependentBeanMap ```new ConcurrentHashMap<String, Set<String>>```: Map between dependent bean names: bean name --> Set of dependent bean names
 * dependenciesForBeanMap ```oncurrentHashMap<String, Set<String>>```: Map between depending bean names: bean name --> Set of bean names for the bean's dependencies
+* containedBeanMap ```oncurrentHashMap<String, Set<String>>```: Map between containing bean names: bean name --> Set of bean names that the bean contains
 * getBean by name
   1. transformedBeanName
   2. getSingleton

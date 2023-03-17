@@ -26,7 +26,7 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
          <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
          <init-param>
              <param-name>contextConfigLocation</param-name>
-             <param-value>/WEB-INF/unisphere-servlet.xml</param-value>
+             <param-value>/WEB-INF/xxxx.xml</param-value>
          </init-param>
          <load-on-startup>1</load-on-startup>
      </servlet>
@@ -35,22 +35,6 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
          <servlet-name>myapp</servlet-name>
          <url-pattern>/*</url-pattern>
      </servlet-mapping>
-     ```
-     
-     ```
-     <!-- other ways to provide spring configuration instead of servlet init-param -->
-     configuration in conext
-     <Context ...>
-          ...
-          <Parameter name="contextConfigLocation" value="/WEB-INF/applicationContext.xml" />
-          ...
-     </Context>
-     
-     in web.xml
-     <context-param>
-         <param-name>contextConfigLocation</param-name>
-         <param-value>/WEB-INF/applicationContext.xml</param-value>
-     </context-param> 
      ```
      
   2. program
@@ -69,8 +53,8 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
      }
      // beanContext's parent is null, because no ContextLoaderListener
      ```
-* Use ServletContextListener and DispatcherServlet for multiple servlet
-  * If there are multiple servlets need to share backend business spring context, can introduce ContextLoaderListener to load backend spring beans.
+* Use ServletContextListener and DispatcherServlet for multiple servlets
+  * If there are multiple servlets need to share the spring context of backend business, can introduce ContextLoaderListener to load backend spring beans.
   * Spring core context (context init-params: contextConfigLocation) loaded by ContextLoaderListener.contextInitialized.
   * Each DispatcherServlet just loads spring MVC related beans (servlet init-params: contextConfigLocation) separately by DispatcherServlet.init.
     * HttpServletBean.int -> BeanWrapper.setPropertyValues(PropertyValues, true) -> set contextConfigLocation to the instance of DispatcherServlet 
@@ -114,6 +98,25 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
          <url-pattern>/app2/*</url-pattern>
      </servlet-mapping>
      ```
+
+
+     ```
+     <!-- two ways to provide spring configuration for servlet context (for ContextLoaderListener) -->
+     configuration in conext
+     <Context ...>
+          ...
+          <Parameter name="contextConfigLocation" value="/WEB-INF/applicationContext.xml" />
+          ...
+     </Context>
+     
+     in web.xml
+     <context-param>
+         <param-name>contextConfigLocation</param-name>
+         <param-value>/WEB-INF/applicationContext.xml</param-value>
+     </context-param> 
+     ```
+
+
   2. program ()
      ```
      // servletContext (ServletContext)
@@ -168,7 +171,7 @@ public class SpringServletContainerInitializer implements ServletContainerInitia
     4. wac.getEnvironment and env.initPropertySources
     5. postProcessWebApplicationContext
     6. applyInitializers
-    7. wac.refresh: if no configLocations, use default configLocations: getDefaultConfigLocations -> "/WEB-INF/<namespace>.xmlddd"
+    7. wac.refresh: if no configLocations, use default configLocations: getDefaultConfigLocations -> "/WEB-INF/<namespace>.xml"
 
 ## org.springframework.web.context.ContextLoaderListener (load context root webApplicationContext)
 * contextInitialized -> initWebApplicationContext

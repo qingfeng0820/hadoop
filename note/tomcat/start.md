@@ -11,9 +11,10 @@ tomcat 的源码程序启动类 Bootstrap 配置VM参数（注意路径需要修
 # org.apache.catalina.startup.Bootstrap
 * main -> init -> load -> start
 * init
-  1. Create three classloader: common (parent), server (for tomcat instance), shared (shared for applications)
-  2. Using server classloader to create catalinaDaemon (Catalina)
-  3. Set catalinaDaemon's parent classloader to be share classloader
+  1. Create three classloader: common (parent), server (for tomcat instance, parent class loader is common classloader), shared (shared for applications, parent class loader is common classloader)
+  2. Set server classloader to be thread context class loader, then load tomcat related classes.
+  3. Using server classloader to load Catalina class and create an instance Catalina (catalinaDaemon)
+  4. Set catalinaDaemon's parent classloader to be share classloader
 * load: call catalinaDaemon.load
 * start: call catalinaDaemon.start
 
@@ -116,7 +117,7 @@ endorsed - Libraries that override standard "Endorsed Standards". By default it'
     2. System.out.println(request.getServletPath()); 打印结果：/main/list.jsp
     3. request.getPathInfo(); 为null
     4. System.out.println(request.getRequestURI()); 打印结果：/news/main/list.jsp
-    5. System.out.println(request.getRealPath("/")); 打印结果：F:\Tomcat 6.0\webapps\news\test
+    5. System.out.println(request.getRealPath("/")); 打印结果：F:\Tomcat 6.0\webapps\news
   * getServletPath and getPathInfo
     1. "" and "/main/list.jsp"
        ```
