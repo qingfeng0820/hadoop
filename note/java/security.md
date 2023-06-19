@@ -5,6 +5,7 @@
   ```System.setSecurityManager(new SecurityManager())；```
 * JVM自带的Policy文件位于%JAVA_HOME%/jre/lib/security/java.policy；
 
+* DEBUG ssl handshake: -Djavax.net.debug=SSL,handshake,data,trustmanager  -Djdk.tls.client.protocols="TLSv1.2,TLSv1.3"
 
 # Protection mechanisms - Java security architecture
 * Java runtime’s protection mechanisms can prevent untrusted Java applications from loading and using native code in the first place.
