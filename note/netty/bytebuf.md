@@ -25,63 +25,63 @@
        buf.clear();
        in.read(buf);
        ```
-     * remaining(): get available spaces (limit - position)
      * compact(): 
 
        ![](./img/bytebuffer_compact.png)
        * copy unconsumed bytes (from position to limit) to the beginning of buffer
        * position = remaining() (discard original consumed bytes), limit = capacity, mark = -1
-  2. Preparation Write to the buffer: before reading from the buffer
+  2. remaining(): get available spaces (limit - position) - (when reading)
+  3. Preparation Read from the buffer: before reading from the buffer
      * flip(): set limit to current position, then set position to 0 and discard mark
        * it can only read bytes which were already consumed last time. (re-read consumed bytes)
-     * rewind(): set position to 0 and discard mark
-       * it can read all bytes in the buffer
-       * it's used for repeat reading or overwriting
-  3. mark(): mark = position.
-  4. reset(): position = mark (it's used after mark(), if mark == -1, reset will throw exception)
-  5. duplicate(): duplicate a same bytebuffer which has it owner offset, mark, position, limit and capacity (byte array/direct address shared)
-  6. slice(): offset = current position + current offset, limit = capacity = remaining(), position = 0
-  7. java.nio.ByteOrder: ByteOrder.nativeOrder() - default ByteOrder.BIG_ENDIAN is native order.
-     * buffer.order(ByteOrder.LITTLE_ENDIAN)对byte[] buffer进行大小端的转换
-     * Integer 和 Long 都提供了一个静态方法reverseBytes()
-       ```
-       public class ReverseBytesOfLongClass {
-           public static void main(String[] args) {
-               long value = 1296;
-               System.out.println("value:" + value);
-               System.out.println("Long.toBinaryString(value):" + Long.toBinaryString(value));
-               System.out.println("Long.reverseBytes(value):" + Long.reverseBytes(value));
-               System.out.println("Long.toBinaryString(Long.reverseBytes(value)):" + Long.toBinaryString(Long.reverseBytes(value)));
-           }
-       }
+  4. rewind(): set position to 0 and discard mark
+     * it can read all bytes in the buffer
+     * it's used for repeat reading or overwriting
+  5. mark(): mark = position.
+  6. reset(): position = mark (it's used after mark(), if mark == -1, reset will throw exception)
+  7. duplicate(): duplicate a same bytebuffer which has it owner offset, mark, position, limit and capacity (byte array/direct address shared)
+  8. slice(): offset = current position + current offset, limit = capacity = remaining(), position = 0
+  9. java.nio.ByteOrder: ByteOrder.nativeOrder() - default ByteOrder.BIG_ENDIAN is native order.
+      * buffer.order(ByteOrder.LITTLE_ENDIAN)对byte[] buffer进行大小端的转换
+      * Integer 和 Long 都提供了一个静态方法reverseBytes()
+        ```
+        public class ReverseBytesOfLongClass {
+            public static void main(String[] args) {
+                long value = 1296;
+                System.out.println("value:" + value);
+                System.out.println("Long.toBinaryString(value):" + Long.toBinaryString(value));
+                System.out.println("Long.reverseBytes(value):" + Long.reverseBytes(value));
+                System.out.println("Long.toBinaryString(Long.reverseBytes(value)):" + Long.toBinaryString(Long.reverseBytes(value)));
+            }
+        }
        
-       输出：
-       value:1296
-       Long.toBinaryString(value):10100010000
-       Long.reverseBytes(value):1154328879490400256
-       Long.toBinaryString(Long.reverseBytes(value)):1000000000101000000000000000000000000000000000000000000000000
+        输出：
+        value:1296
+        Long.toBinaryString(value):10100010000
+        Long.reverseBytes(value):1154328879490400256
+        Long.toBinaryString(Long.reverseBytes(value)):1000000000101000000000000000000000000000000000000000000000000
        
-       BIG_ENDIAN: 10100010000: 101,00010000   java can display the binary correctly
-       LITTLE_ENDIAN: 1000000000101000000000000000000000000000000000000000000000000: 10000,00000101,00000000,00000000,00000000,00000000,00000000,00000000
-       ```
-     * ByteOrder.LITTLE_ENDIAN: 小字节序、低字节序 - 即低位字节排放在内存的低地址端，高位字节排放在内存的高地址端。example: 低阶字节存储在起始地址(A)，高阶字节存储在下一个地址(A + 1)
-     * ByteOrder.BIG_ENDIAN (网络字节顺序): 大字节序、高字节序 - 即高位字节排放在内存的低地址端，低位字节排放在内存的高地址端。example: 高阶字节存储在起始地址(A)，低阶字节存储在下一个地址(A + 1)
-     ```
-     根据这些定义，一种32位数据模式，它被视为32位无符号整数。“高阶”字节是2的最大次方：231，…, 224。“低阶”字节是2的最小次方: 27，…, 20。
-     示例如下：
-       MSB：全称为Most Significant Byte，在二进制数中属于最高有效位，MSB是最高加权位，与十进制数字中最左边的一位类似。
-       LSB：全称为Least Significant Byte，在二进制数中意为最低有效位，
-       一般来说，MSB位于二进制数的最左侧，LSB位于二进制数的最右侧。
-     ```
+        BIG_ENDIAN: 10100010000: 101,00010000   java can display the binary correctly
+        LITTLE_ENDIAN: 1000000000101000000000000000000000000000000000000000000000000: 10000,00000101,00000000,00000000,00000000,00000000,00000000,00000000
+        ```
+      * ByteOrder.LITTLE_ENDIAN: 小字节序、低字节序 - 即低位字节排放在内存的低地址端，高位字节排放在内存的高地址端。example: 低阶字节存储在起始地址(A)，高阶字节存储在下一个地址(A + 1)
+      * ByteOrder.BIG_ENDIAN (网络字节顺序): 大字节序、高字节序 - 即高位字节排放在内存的低地址端，低位字节排放在内存的高地址端。example: 高阶字节存储在起始地址(A)，低阶字节存储在下一个地址(A + 1)
+      ```
+      根据这些定义，一种32位数据模式，它被视为32位无符号整数。“高阶”字节是2的最大次方：231，…, 224。“低阶”字节是2的最小次方: 27，…, 20。
+      示例如下：
+        MSB：全称为Most Significant Byte，在二进制数中属于最高有效位，MSB是最高加权位，与十进制数字中最左边的一位类似。
+        LSB：全称为Least Significant Byte，在二进制数中意为最低有效位，
+        一般来说，MSB位于二进制数的最左侧，LSB位于二进制数的最右侧。
+      ```
 
-     ![](./img/byte_order.png)
-     ![](./img/byte_order2.png)
-     * 字节顺序是否影响文件格式?
-       * 以多个字节为基本单位存储的文件或者数据类型才受字节顺序影响。
-       * 以1字节为基本单位的文件格式独立于字节顺序，例如ASCII文件。
-       * 其他文件格式使用一些固定的端顺序格式，例如JPEG文件以大端顺序格式存储。
-       * java 全部为大端(与平台无关)： Java二进制文件中的所有内容都以大端顺序存储。这意味着如果您只使用Java，那么所有文件在所有平台(Mac、PC、UNIX等)上的处理方式都是相同的。
-       * C语言默认是小端模式：用C语言编写的程序通常使用 小端顺序
+      ![](./img/byte_order.png)
+      ![](./img/byte_order2.png)
+      * 字节顺序是否影响文件格式?
+        * 以多个字节为基本单位存储的文件或者数据类型才受字节顺序影响。
+        * 以1字节为基本单位的文件格式独立于字节顺序，例如ASCII文件。
+        * 其他文件格式使用一些固定的端顺序格式，例如JPEG文件以大端顺序格式存储。
+        * java 全部为大端(与平台无关)： Java二进制文件中的所有内容都以大端顺序存储。这意味着如果您只使用Java，那么所有文件在所有平台(Mac、PC、UNIX等)上的处理方式都是相同的。
+        * C语言默认是小端模式：用C语言编写的程序通常使用 小端顺序
   
 * sun.nio.ch.IOUtil
 ```
@@ -143,6 +143,6 @@ static int read(FileDescriptor var0, ByteBuffer var1, long var2, NativeDispatche
 # Pool
 ## io.netty.util.Recycler
 * FastThreadLocal<Stack<T>> threadLocal: provide Stack to cache the instances of T
-* protected abstract T newObject(Handle<T> handle): if no available instance of T in cache, new one.
+* protected abstract T newObject(Handle<T> handle): if no available instance of T in cache, new one by newObject.
 * When cache an instance of T, Stack will create a DefaultHandle to wrap the instance of T.
 * The DefaultHandle provides recycle method to re-cache the returned instance of T to the Stack.

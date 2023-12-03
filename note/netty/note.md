@@ -209,7 +209,7 @@ b.group(bossGroup)
 ```
   * 单Reactor多线程模型
     * Netty的改进 （EventLoop的特性）
-      * 虽然是但reactor,但是BossGroup 线程维护Selector , 只关注Accecpt
+      * 虽然是单reactor,但是BossGroup 线程维护Selector , 只关注Accecpt
       * workgroup线程维护的Selector，关注read/write事件
 
       ![](./img/event_loop_reactor.png)

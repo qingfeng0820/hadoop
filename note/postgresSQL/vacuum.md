@@ -314,6 +314,12 @@
                 164 | 0 bytes            |                0.00
     (1 row)
     ```
+* Note
+  ```
+  PostgreSQL Vacuum removes only the dead rows that are not in use anymore.
+  A tuple is considered not needed when transaction ID (t_xmax of this tuple) of the deleting transaction 
+  is older than oldest transaction (OldestXmin) which is still active in the PostgreSQL database.
+  ```
 ## 移除不必要的提交日志文件
 * 当更新pg_database.datfrozenxid时，PostgreSQL会尝试删除不必要的clog文件。 注意相应的clog页面也会被删除。
 * Example

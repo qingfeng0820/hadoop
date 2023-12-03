@@ -621,3 +621,12 @@
       clone-max=2 clone-node-max=1 notify=true
       pcs   # pcs cluster push cib drbd_cfg
       ```
+* stonith
+  * 查看可用的stonith resource: stonith -L 
+  * customized的stonith存在: /usr/lib64/stonith/plugins/external/
+  * stonith_reset <node>
+    * 某个node上有以下情况，pacemaker会让另外一个node去stonith这个node
+      * in CPU/memory pressure status
+      * some RA is timeout
+      * some RA stops failed
+      * corosync could not talk to each other (may split brain)

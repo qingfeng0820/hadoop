@@ -50,5 +50,5 @@ private void expandIndexedVariableTableAndSet(int index, Object value) {
     indexedVariables = newArray;
 }
 ```
-* 当新建了FastThreadLocal实例并赋值 （用了一个新的index），会把这个FastThreadLocal实例记录在InternalThreadLocalMap的variablesToRemoveIndex （一般是0）位置上的remove variables set里面
+* 当新建了FastThreadLocal实例并赋值 （用了一个新的index），会把这个FastThreadLocal实例记录在InternalThreadLocalMap的variablesToRemoveIndex 位置上的remove variables set里面
 * 当FastThreadLocal remove的时候，也会从remove variables set里面删除它

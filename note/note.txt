@@ -23,3 +23,7 @@ https://download.microsoft.com/download/5/A/0/5A08CEF4-3EC9-494A-9578-AB687E716C
 
 install Windows SDK for Windows 7
 https://www.microsoft.com/en-us/download/confirmation.aspx?id=8279
+
+
+Ubuntu VM mount host's share folder:
+sudo vmhgfs-fuse .host:/ /mnt/hgfs -o allow_other -o nonempty
