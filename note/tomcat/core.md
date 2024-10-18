@@ -21,7 +21,7 @@
   1. socket 通信，也就是网络编程, 负责对接 I/O 模型 (EndPoint)
   2. 解析处理应用层协议，封装成一个 Request 对象 (Processor)
   3. Adapter 将 Request 转换为 标准的ServletRequest，并将 ServletRequest 对象传给 Servlet 容器(CoyoteAdapter.service)
-  4. Adapter 将 从Servlet容器获取到的ServletResponse Response 转换为
+  4. Adapter 将 从Servlet容器获取到的ServletResponse 转换为 Response
 
      ![](./img/endpoint_and_processor.png)   
 * ProtocolHandler

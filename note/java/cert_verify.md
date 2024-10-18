@@ -42,8 +42,8 @@
   * 用指纹算法对整个证书算出一个hash值作为指纹
 * 签名算法： 生产签名所用的加密算法
 * 签名
-  * 证书颁发机构用签名算法和它自己的私钥对颁发的证书里面的指纹和指纹算法做加密，形成的密文就是签名
-  * 客户端可以用证书颁发机构本身的证书里的公钥加密服务器证书的指纹和指纹算法，然后用指纹算法对服务器的证书hash一个指和指纹匹配，防止服务器证书被修改
+  * 证书颁发机构用签名算法和它自己的私钥对颁发的证书里面的指纹和指纹算法做加密，形成的密文就是签名 (指纹和指纹算法在签名里面)
+  * 客户端可以用证书颁发机构本身的证书里的公钥和签名算法解密签名，得到服务器证书的指纹和指纹算法，然后用指纹算法对服务器的证书hash一个指纹，和获取的指纹匹配，防止服务器证书被修改
 
 ### 客户端通过服务器数字证书获取服务器公钥
 1. "客户" -> "服务器": 你好
@@ -136,7 +136,7 @@
   try{
       KeyStore keyStore = KeyStore.getInstance(“JCEKS”);
       keyStore.load(null,null); 
-      KeyGenerator.getInstance(“DES”);
+      KeyGenerator keyGen = KeyGenerator.getInstance(“DES”);
       keyGen.init(56);
       Key key = keyGen.generateKey();
       keyStore.setKeyEntry(“mykey”, key, “password”.toCharArray(), null);
@@ -167,7 +167,7 @@
   try{
       KeyStore keyStore = KeyStore.getInstance(“PKCS12”);
       keyStore.load(null,null); 
-      KeyGenerator.getInstance(“AES”);
+      KeyGenerator keyGen = KeyGenerator.getInstance(“AES”);
       keyGen.init(128);
       Key key = keyGen.generateKey();
       keyStore.setKeyEntry(“mykey”, key, “password”.toCharArray(), null);

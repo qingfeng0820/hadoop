@@ -78,11 +78,16 @@ endorsed - Libraries that override standard "Endorsed Standards". By default it'
       SSLEnabled="true"
       scheme="https"
       secure="true">
-      <SSLHostConfig 
-        SSLProtocol="TLSv1+TLSv1.1+TLSv1.2" 
-        ciphers="TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA256">
-           <Certificate certificateKeystoreFile="/xxx/tomcat/cert/restlessman.cn.pfx" keystoreType="PKCS12" keystorePass="xxxxx" ... />
-      </SSLHostConfig>
+      <Engine name="Catalina" defaultHost="localhost">
+          <Host name="localhost"  appBase="webapps" unpackWARs="true" autoDeploy="true">
+              <SSLHostConfig 
+                SSLProtocol="TLSv1+TLSv1.1+TLSv1.2" 
+                ciphers="TLS_RSA_WITH_AES_128_CBC_SHA,TLS_RSA_WITH_AES_256_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_RSA_WITH_AES_256_CBC_SHA256">
+                   <Certificate certificateKeystoreFile="/xxx/tomcat/cert/restlessman.cn.pfx" keystoreType="PKCS12" keystorePass="xxxxx" ... />
+              </SSLHostConfig>
+              <!-- Additional Host configurations -->
+          </Host>
+      </Engine>
     </Connector>
     ```
 * modify conf/web.xml for redirecting http to https

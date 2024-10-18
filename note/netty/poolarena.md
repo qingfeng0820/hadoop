@@ -334,8 +334,6 @@
     * call size2SizeIdx with reqCapacity to determine huge, normal or small allocation.
     * if normal or small allocation, call cache.allocateSmall/cache.allocateNormal to apply allocation
     * if failed, call allocateSmall/allocateNormal to apply allocation
-  * allocateSmall
-    * 
   * allocateNormal
     * go PoolChunkList q050 -> q025 -> q000 -> qInit -> q075 to find one do the allocation
     * if not find
@@ -350,6 +348,7 @@
       * check SizeClass.Small or SizeClass.Normal by checking the subPage flag bit of the handle
       * if cache is not null, add this chunk to the cache
       * else call chunk.parent.free
+        * if free returns false, destroy this chunk, because this chunk is not used.
 
 #### `io.netty.buffer.PoolChunkList<T>`
 * maxCapacity -> (int) (chunkSize * (100L - minUsage) / 100L) #  Calculate the maximum amount of bytes that can be allocated from a PoolChunk
@@ -370,6 +369,7 @@
   * free
     * call chunk.free
     * if chunk.freeBytes > freeMaxThreshold and prevList is not null, move this chunk to the prevList
+    * if chunk.freeBytes > freeMaxThreshold and prevList is null, return false to let PoolArena destroyChunk (because q000's freeMaxThreshold just approach chunkSize and q000's prevList is Null)
 #### `io.netty.buffer.PoolChunk<T>`
 ![](./img/chunkTree.png)
 ![](./img/poolchunk.png)

@@ -173,22 +173,22 @@ DocumentRoot "/mnt/web/clusting" #主站点的网页存储位置。
     StartServers 5 #启动apache时启动的httpd进程个数。
     MinSpareServers 5 #服务器保持的最小空闲进程数。
     MaxSpareServers 10 #服务器保持的最大空闲进程数。
-    MaxClients 150 #最大并发连接数。
+    MaxClients/MaxRequestWorkers 150 #最大并发连接数。
     MaxRequestsPerChild 1000 #每个子进程被请求服务多少次后被kill掉。0表示不限制，推荐设置为1000。
     </IfModule> 
     ```
-  * worker: 如果httpd -worker.c，则需要对下面的段进行配置：
+  * worker: 如果httpd -l列出worker.c，则需要对下面的段进行配置：
     ``` 
     <IfModule worker.c> 
     StartServers 2 #启动apache时启动的httpd进程个数。
-    MaxClients 150 #最大并发连接数。
+    MaxClients/MaxRequestWorkers 150 #最大并发连接数。
     MinSpareThreads 25 #服务器保持的最小空闲线程数。
     MaxSpareThreads 75 #服务器保持的最大空闲线程数。
     ThreadsPerChild 25 #每个子进程的产生的线程数。
     MaxRequestsPerChild 0 #每个子进程被请求服务多少次后被kill掉。0表示不限制，推荐设置为1000。
     </IfModule> 
     ```
-  * perchild: 如果httpd -perchild.c，则需要对下面的段进行配置(一个进程只有一个线程)：
+  * perchild: 如果httpd -l列出perchild.c，则需要对下面的段进行配置(一个进程启动固定个数的线程)：
     ``` 
     <IfModule perchild.c> 
     NumServers 5 #服务器启动时启动的子进程数
@@ -474,6 +474,7 @@ DocumentRoot "/mnt/web/clusting" #主站点的网页存储位置。
   * 状态：扩展
   * 模块：mod_proxy
 ```
+Reserve Proxy:
 该指令可以将远程服务器映射到本地服务器的URL空间；本地的服务器并不是扮演传统意义上的代理服务器的角色，而是表现为远程服务器的一个镜像。此本地服务器常被成为 反向代理 （reversed proxy）或者是 网关 （gateway）。 路径 是指本地虚拟路径的名字； url 指远程服务器的一个部分URL，不能包含查询字符串。
 注意：在使用 ProxyPass 指令的时候， ProxyRequests 指令通常都应该是关闭的。
 假设本地服务器的地址是 http://example.com/ ，那么
@@ -487,7 +488,6 @@ ProxyPass /mirror/foo http://backend.example.com
 将会把所有的 /mirror/foo 请求重定向到 backend.example.com 除了对 /mirror/foo/i 的请求。
 注意：
 顺序很重要：排除的指令必须在一般的 ProxyPass 指令之前。
-顺序很重要：排除的指令必须在一般的 ProxyPass 指令之前。
 和Apache 2.1一样，具备了使用到后端服务器的线程池的能力。使用“ 键=值 ”的参数便可调节线程池的分配。 硬性最大值（Hard Maximum） 的默认值为当前MPM中每个进程的线程数量。在Prefork MPM中，该值总是为1，在Worker MPM中，该值受 ThreadsPerChild 控制。
 设置 min 可以决定有多少到后端服务器的链接始终打开。根据需要最多创建数量为柔性最大值（Soft Maximum），也就是 smax 的链接。任何超出 smax 数量的链接都会指定一个生存时间也就是 ttl 。Apache不会同时创建超过硬性最大值（或 max ）数量的到后端服务器的链接。
 
@@ -497,7 +497,7 @@ ProxyPass /example http://backend.example.com smax=5 max=20 ttl=120 retry=300
   * ProxyPassMatch [regex] !|url
   * examples
     * ProxyPassMatch ^/images !  
-    * ProxyPassMatch ^(/.*\.gif)$ http://backend.example.com$1  (ttp://example.com/foo/bar.gif -> http://backend.example.com/foo/bar.gif)
+    * ProxyPassMatch ^(/.*\.gif)$ http://backend.example.com$1  (http://example.com/foo/bar.gif -> http://backend.example.com/foo/bar.gif)
 * ProxyPassReverse
   * ProxyPassReverse [路径] url
   * 它一般和ProxyPass指令配合使用，此指令使Apache调整HTTP重定向应答中Location, Content-Location, URI头里的URL
@@ -568,6 +568,7 @@ ProxySet lbmethod=bytraffic
  </VirtualHost>
  
  现在即可在浏览器的网络连接属性框中或 QQ 登录配置中，填写上 your_apache_server_ip 的 ip 地址，端口是 80，开始用代理了。
+ 只允许ip range在192.168.50.80/24的client能使用这个forward proxy
 ```
 
 ## Auth
