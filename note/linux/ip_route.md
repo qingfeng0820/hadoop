@@ -1,5 +1,5 @@
 ## ip rule ，iptables ,ip route 的过程
-* iptables 和 ip route 是两个不同的工具，它们在不同的阶段执行不同的功能。ip route 是用来管理和控制
+* iptables 和 ip route 是两个不同的工具，它们在不同的阶段执行不同的功能。
 * ip route 是用来管理和控制路由表的，它决定了数据包应该从哪个网卡或网关发送出去。
   * linux 系统中，可以自定义从 1－252个路由表。其中，linux系统维护了4个路由表：
     * 0#表： 系统保留表
@@ -7,6 +7,27 @@
     * 254#表： main table 没指明路由表的所有路由放在该表
     * 255#表： local table 保存本地接口地址，广播地址、NAT地址 由系统维护，用户不得更改
   * ip route show table [table_num/name]
+    ```
+    ip route show  或 ip route show table 254
+
+    result examples:
+    
+    default via 10.245.166.1 dev eth0 proto dhcp
+    10.245.166.0/24 dev eth0 proto kernel scope link src 10.245.166.105
+
+    default via 192.168.1.1 dev eth0 proto static
+
+    ```
+    * `default` 或 `0.0.0.0/0`：表示默认路由，即当路由表中没有找到目标网络的具体路由时，数据包将采用这条路由进行发送
+    * `dev`：表示数据包将通过哪个网络接口设备发送，results examples中的eth0
+    * `proto`: 示数据包获取此路由的方式，例如 `boot`、`static`、 `kernel`、`dhcp` 等
+    * `metric`: 表示路由的成本度量，数值越小，优先级越高
+    
+    * `proto kernel`: 这指示这个路由是由系统内核自动生成的
+    * `scope link`: 这表示这是一个本地连接，即这个路由仅在本地网络设备上有效 
+      * 意味着这个路由只适用于本地主机或局域网内部的通信，而不会被用于发送到其他网络的数据包
+    * `src 10.245.166.105`：这指定了这个网络接口的源地址为10.245.166.105，即从这个IP地址发送的数据包会使用这个路由
+    * 数据走`10.245.166.0/24`这条路由的通过 eth0的ip link 10.245.166.105
 * ip rule：用于管理路由表的路由规则。
   * ip rule show table [table_num/name]
       ```

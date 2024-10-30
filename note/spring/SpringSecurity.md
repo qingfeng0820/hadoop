@@ -1,7 +1,7 @@
 # Spring Security 
 ## Spring Security 的初始化和认证授权是围绕下面三类展开的
-* org.springframework.web.filter.DelegatingFilterProxy
-* org.springframework.security.web.FilterChainProxy (springSecurityFilterChain)
+* org.springframework.web.filter.DelegatingFilterProxy    ->  default register filter called "springSecurityFilterChain"
+* org.springframework.security.web.FilterChainProxy   -> with bean name "springSecurityFilterChain"
 * org.springframework.security.web.SecurityFilterChain (org.springframework.security.web.DefaultSecurityFilterChain)
 
 ![](./img/filter_chain.png)
