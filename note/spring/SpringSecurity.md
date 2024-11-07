@@ -21,7 +21,9 @@
   ```
    Annotation org.springframework.security.config.annotation.web.configuration.EnableWebSecurity imports 
    Configuration org.springframework.security.config.annotation.web.configuration.WebSecurityConfiguration
-   WebSecurityConfiguration.springSecurityFilterChain creates the delegated filter
+   WebSecurityConfiguration.springSecurityFilterChain creates the delegated filter with its securityFilterChains via 
+   org.springframework.security.config.annotation.web.builders.WebSecurity.build() -> FilterChainProxy
+  
    ```
 * doFilter: call doFilter of delegated filter.
 
@@ -175,3 +177,44 @@
 * org.springframework.security.web.session.SessionManagementFilter
 * org.springframework.security.core.context.SecurityContextHolder
 * org.springframework.security.core.context.SecurityContextHolderStrategy
+
+#### Example
+
+```
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(Customizer.withDefaults())
+            .authorizeHttpRequests(authorize -> authorize
+                .anyRequest().authenticated()
+            )
+            .httpBasic(Customizer.withDefaults())
+            .formLogin(Customizer.withDefaults());
+        return http.build();
+    }
+}
+
+
+
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http.addFilterAt(new CustomAuthenticationFilter(), BasicAuthenticationFilter.class)
+            .authorizeRequests()
+            .anyRequest().authenticated()
+            .and()
+            .httpBasic();
+        
+        return http.build();
+    }
+}
+```
+* The SecurityFilterChain will be autowired to WebSecurityConfiguration.securityFilterChains

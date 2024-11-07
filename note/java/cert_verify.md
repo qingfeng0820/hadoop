@@ -56,6 +56,46 @@
 7. "客户" -> "服务器": {我的账号是aaa, 密码是123， 把我的余额信息发给我看看}[密钥|对称加密算法]
 8. "服务器" -> "客户": {你的当前余额是100元}[密钥|对称加密算法]
 
+## Certificate check in SSL connect
+```
+import javax.net.ssl.SSLContext;
+
+SSLContext sslContext = SSLContext.getInstance("TLS");
+sslContext.init(javax.net.ssl.KeyManagers[], javax.net.ssl.TrustManagers[], java.securit.SecureRandom);
+String[] supportCipherSuites = sslContext.getSocketFactory().getSupportedCipherSuites();
+
+
+javax.net.ssl:
+
+Trust store: 
+java.security.KeyStore.getInstance("PKCS12") -> KeyStore.load(InputStream, char[] password) 
+-> KeyStore.setCertificateEntry(String alias, java.security.cert.Certificate);
+
+
+Trust manager: 
+TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).factorySpi  -> sun.security.ssl.TrustManagerFactoryImpl$PKIXFactory
+TrustManagerFactory.getDefaultAlgorithm() -> PKIX
+
+TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).init(java.security.KeyStore) -> factorySpi.engineInit(java.security.KeyStore)
+
+TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm()).getTrustManagers() -> factorySpi.engineGetTrustManagers()
+TrustManager -> X509TrustManager (checkClientTrusted, checkServerTrusted, getAcceptedIssuers) -> X509ExtendedTrustManager (checkClientTrusted, checkServerTrusted) -> sun.security.ssl.X509TrustManagerImpl
+
+
+Key store: 
+java.security.KeyStore.getInstance("PKCS12") -> KeyStore.load(InputStream, char[] keystorePassword) 
+-> KeyStore.mKeyStore.setKeyEntry(String alias, byte[] privateKey, char[] keystorePassword, java.security.cert.Certificate[] certificateChain);
+
+Key manager: 
+KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm()).factorySpi -> sun.security.ssl.KeyManagerFactoryImpl$SunX509
+KeyManagerFactory.getDefaultAlgorithm() -> SunX509
+
+KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm()).init(java.security.KeyStore, char[] keystorePassword) -> factorySpi.engineInit(java.security.KeyStore, char[] keystorePassword)
+
+KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm()).getKeyManagers() -> factorySpi.engineGetKeyManagers()
+KeyManager -> X509KeyManager (getPrivateKey, chooseClientAlias, chooseServerAlias, getCertificateChain) -> X509ExtendedKeyManager (chooseEngineClientAlias, chooseEngineServerAlias) -> sun.security.ssl.X509KeyManagerImpl
+```
+
 ## Java Keystore
 ### JKS，Java Key Store
 * sun.security.provider.JavaKeyStore
