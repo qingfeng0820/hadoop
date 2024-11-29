@@ -5,9 +5,7 @@
    * A Volume Group can map to multiple physical partitions
    * A Volume Group can split to multiple LVMs
    * A LVM mapping to a FS path
-     ```
-     
-     ```
+
 2. Disk -> Partition -> Mapping Point (MP)
 
    ![](./img/disk2.png)
@@ -53,8 +51,17 @@
 
 ## disk operation
 * partition disk: ``` sudo fdisk /dev/sdb ```
+* show partition: ``` sudo blkid /dev/sdb1  |  sudo parted -l |  sudo parted -l /dev/sdb1 ```
 * create a physical volume: ``` sudo pvcreate /dev/sdb1 ```
 * create a volume group: ``` sudo vgcreate my_vg /dev/sdb1 ```
 * create logical volumes: ``` sudo lvcreate -L 10G -n my_lv my_vg ```
 * extend a volume group: ``` sudo vgextend my_vg /dev/sdc1 ```
 * extend a LVM: ``` sudo lvextend -l +100%FREE /dev/my_vg/my_lv   |  sudo lvextend -L +5G /dev/my_vg/my_lv ```
+
+* show volume group: ``` sudo vgdisplay    |    sudo vgdisplay centos```
+* show volume: ``` sudo lvdisplay    |    sudo lvdisplay /dev/centos/root```
+* show physical volume: ``` sudo pvdisplay | sudo pvdisplay /dev/sda1 ```
+* format partition: ```sudo mkfs.ext4 /dev/sda3```
+* remove disk from volume group: ```sudo vgreduce /dev/data /dev/sdc```
+* show logic volume filesystem type: ```sudo blkid /dev/data/data```
+* Resize the Filesystem: xfs type -> ```sudo xfs_growfs /dev/data/data```, ext4 -> ```sudo resize2fs /dev/data/data```
